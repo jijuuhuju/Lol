@@ -2,110 +2,139 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>⚠️ WARNING: SYSTEM CRASH ⚠️</title>
+    <title>🚨 INFINITE LOOP ERROR 🚨</title>
     <style>
+        /* 背景を強制的にレインボー点滅させるアニメーション */
+        @keyframes rainbow {
+            0% { background-color: #ff0000; }
+            20% { background-color: #00ff00; }
+            40% { background-color: #0000ff; }
+            60% { background-color: #ffff00; }
+            80% { background-color: #ff00ff; }
+            100% { background-color: #ff0000; }
+        }
         body {
             background-color: #111;
-            color: white;
+            color: #00ff00;
             overflow: hidden;
-            font-family: 'Impact', sans-serif;
+            font-family: 'Comic Sans MS', sans-serif;
             height: 100vh;
             margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             flex-direction: column;
-            transition: background-color 0.5s ease;
         }
-        /* 虫・動物たちの共通スタイル */
-        .sprite {
+        .rainbow-active {
+            animation: rainbow 0.15s linear infinite !important;
+        }
+        /* 巨大化したキャラクターたち */
+        .mega-sprite {
             position: absolute;
-            font-size: 50px;
+            font-size: 120px;
             user-select: none;
-            z-index: 5;
+            z-index: 100;
         }
-        /* 💥と🔥のエフェクト */
-        .effect {
-            position: absolute;
-            font-size: 80px;
-            user-select: none;
-            z-index: 30;
-            animation: explode 0.5s ease-out forwards;
-        }
-        @keyframes explode {
-            0% { transform: scale(0.3); opacity: 1; }
-            100% { transform: scale(3); opacity: 0; }
-        }
-        /* 👍ボタンのスタイル */
+        /* 👍ボタンの大増殖 */
         .like-btn {
-            padding: 12px 24px;
-            font-size: 20px;
+            padding: 10px 20px;
+            font-size: 24px;
             cursor: pointer;
-            background-color: #007bff;
+            background-color: #ff0055;
             color: white;
-            border: 3px solid #fff;
-            border-radius: 5px;
-            margin: 5px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            border: 5px outset #fff;
+            margin: 2px;
             font-weight: bold;
         }
         .container {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            max-width: 80%;
+            width: 95%;
+            max-height: 80vh;
+            overflow: hidden;
             z-index: 10;
-            transition: all 0.3s;
         }
-        /* 警告テロップ */
-        #warning-text {
+        /* 画面を埋め尽くす偽のエラーウィンドウ */
+        .fake-window {
             position: absolute;
-            font-size: 80px;
-            color: yellow;
+            width: 300px;
+            background: #cbd3df;
+            border: 3px inset #fff;
+            color: black;
+            font-family: 'MS Sans Serif', sans-serif;
+            font-size: 14px;
+            box-shadow: 10px 10px 0px rgba(0,0,0,0.5);
+            z-index: 200;
+        }
+        .window-header {
+            background: linear-gradient(90deg, #000080, #1084d0);
+            color: white;
+            padding: 4px;
             font-weight: bold;
-            display: none;
-            z-index: 50;
-            text-shadow: 5px 5px 0px red;
+            display: flex;
+            justify-content: space-between;
+        }
+        .window-body {
+            padding: 20px;
             text-align: center;
-            width: 100%;
+            font-weight: bold;
         }
-        /* 画面激揺れのアニメーション */
-        @keyframes shake {
-            0% { transform: translate(1px, 1px) rotate(0deg); }
-            10% { transform: translate(-1px, -2px) rotate(-1deg); }
-            20% { transform: translate(-3px, 0px) rotate(1deg); }
-            30% { transform: translate(0px, 2px) rotate(0deg); }
-            40% { transform: translate(1px, -1px) rotate(1deg); }
-            50% { transform: translate(-1px, 2px) rotate(-1deg); }
-            60% { transform: translate(-3px, 1px) rotate(0deg); }
-            70% { transform: translate(2px, 1px) rotate(-1deg); }
-            80% { transform: translate(-1px, -1px) rotate(1deg); }
-            90% { transform: translate(2px, 2px) rotate(0deg); }
-            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        /* 激しい画面揺れ */
+        @keyframes super-shake {
+            0% { transform: translate(10px, 10px) rotate(2deg); }
+            25% { transform: translate(-10px, -10px) rotate(-2deg); }
+            50% { transform: translate(-15px, 10px) rotate(3deg); }
+            75% { transform: translate(10px, -10px) rotate(-3deg); }
+            100% { transform: translate(10px, 10px) rotate(2deg); }
         }
-        .chaos-shake {
-            animation: shake 0.15s infinite;
+        .ultra-collapse {
+            animation: super-shake 0.03s infinite !important;
         }
     </style>
 </head>
-<body id="main-body">
+<body id="target-body">
 
     <div id="btn-container" class="container">
-        <button class="like-btn" onclick="triggerChaos()">👍 いいね！</button>
+        <!-- 初期状態のボタン（JavaScriptから再生成できるように関数化しています） -->
     </div>
 
-    <div id="warning-text">⚠️ SYSTEM ERROR ⚠️<br>🦊🦊🦊🦊🦊</div>
-
     <script>
-        // 1. 最初から画面を荒らす虫たち（🦋と🦟）
-        const sprites = [];
-        const emojis = ['🦋', '🦟', '🪰'];
-        
-        function createInitialSprites() {
-            for (let i = 0; i < 30; i++) { // 30匹に増量
+        const body = document.getElementById('target-body');
+        const container = document.getElementById('btn-container');
+        let sprites = [];
+        let chaosTimers = []; // タイマーを管理してリセットできるようにする
+        const chaosEmojis = ['🦊', '👹', '🦋', '🦟', '💥', '💀', '👽'];
+
+        // --- 1. 初期状態（平和な世界）を作る関数 ---
+        function initPeacefulWorld() {
+            // 全てをクリア
+            container.innerHTML = '';
+            body.className = '';
+            body.style.backgroundColor = '#111';
+            sprites.forEach(s => s.element.remove());
+            sprites = [];
+            chaosTimers.forEach(t => clearInterval(t));
+            chaosTimers = [];
+            
+            // 偽ウィンドウが残ってたら全部消す
+            document.querySelectorAll('.fake-window').forEach(w => w.remove());
+
+            // 最初の👍ボタンを配置
+            const mainBtn = document.createElement('button');
+            mainBtn.className = 'like-btn';
+            mainBtn.style.fontSize = '50px';
+            mainBtn.style.padding = '30px';
+            mainBtn.innerText = '👍 いいね！';
+            mainBtn.onclick = goAbsoluteChaos;
+            container.appendChild(mainBtn);
+
+            // 🦋たちを20匹生成して静かに動かす
+            for (let i = 0; i < 20; i++) {
                 const s = document.createElement('div');
-                s.className = 'sprite';
-                s.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+                s.className = 'mega-sprite';
+                s.style.fontSize = '40px'; // 最初は小さめ
+                s.innerText = '🦋';
                 s.style.left = Math.random() * window.innerWidth + 'px';
                 s.style.top = Math.random() * window.innerHeight + 'px';
                 document.body.appendChild(s);
@@ -114,133 +143,99 @@
                     element: s,
                     x: Math.random() * window.innerWidth,
                     y: Math.random() * window.innerHeight,
-                    speedX: (Math.random() - 0.5) * 15, // 移動速度アップ
-                    speedY: (Math.random() - 0.5) * 15
+                    speedX: (Math.random() - 0.5) * 8,
+                    speedY: (Math.random() - 0.5) * 8
                 });
             }
         }
 
-        function animateSprites() {
+        // キャラクタを動かし続けるループ（常時起動）
+        function mainLoop() {
             sprites.forEach(s => {
                 s.x += s.speedX;
                 s.y += s.speedY;
-                if (s.x < 0 || s.x > window.innerWidth - 50) s.speedX *= -1;
-                if (s.y < 0 || s.y > window.innerHeight - 50) s.speedY *= -1;
+                if (s.x < -50 || s.x > window.innerWidth - 50) s.speedX *= -1;
+                if (s.y < -50 || s.y > window.innerHeight - 50) s.speedY *= -1;
                 
-                // 激しい動きを演出
-                const flip = Math.sin(Date.now() * 0.05) > 0 ? 'scaleX(1)' : 'scaleX(-1)';
-                s.element.style.transform = `translate(${s.x}px, ${s.y}px) ${flip}`;
-            });
-            requestAnimationFrame(animateSprites);
-        }
-        createInitialSprites();
-        animateSprites();
-
-        // 2. カオス発動（ボタンクリック時）
-        let isActivated = false;
-        function triggerChaos() {
-            if (isActivated) return;
-            isActivated = true;
-
-            const container = document.getElementById('btn-container');
-            container.innerHTML = ''; // 最初のボタンを消去
-
-            // 👍ボタンを20個に超増殖！
-            for (let i = 0; i < 20; i++) {
-                const newBtn = document.createElement('button');
-                newBtn.className = 'like-btn';
-                newBtn.innerText = '👍 いいね！';
-                // カオス中にボタンを押すとさらに色が変わる
-                newBtn.onclick = () => { newBtn.style.backgroundColor = 'red'; };
-                container.appendChild(newBtn);
-            }
-
-            // キツネの連続波状攻撃スタート（計10匹が時間差で突撃）
-            for (let i = 0; i < 10; i++) {
-                setTimeout(spawnFox, i * 200);
-            }
-        }
-
-        // 3. 🦊キツネミサイルを射出
-        function spawnFox() {
-            const fox = document.createElement('div');
-            fox.className = 'sprite';
-            fox.innerText = '🦊';
-            fox.style.fontSize = '80px';
-            document.body.appendChild(fox);
-
-            const container = document.getElementById('btn-container');
-            const rect = container.getBoundingClientRect();
-            // 目標：ボタン群の中のランダムな位置
-            const targetX = rect.left + Math.random() * rect.width;
-            const targetY = rect.top + Math.random() * rect.height;
-
-            // 画面外のランダムな位置からスタート
-            let foxX = Math.random() > 0.5 ? -100 : window.innerWidth + 100;
-            let foxY = Math.random() > 0.5 ? -100 : window.innerHeight + 100;
-
-            const timer = setInterval(() => {
-                foxX += (targetX - foxX) * 0.2;
-                foxY += (targetY - foxY) * 0.2;
-                fox.style.transform = `translate(${foxX}px, ${foxY}px) rotate(${Date.now() * 0.1}deg)`;
-
-                // 激突判定
-                if (Math.abs(targetX - foxX) < 20 && Math.abs(targetY - foxY) < 20) {
-                    clearInterval(timer);
-                    fox.remove(); // キツネ消滅
-                    createExplosion(targetX, targetY); // 💥発生
+                // カオス状態のときは超回転、通常時は少し揺れるだけ
+                if (body.classList.contains('ultra-collapse')) {
+                    s.element.style.transform = `translate(${s.x}px, ${s.y}px) rotate(${Date.now() * 0.5}deg)`;
+                } else {
+                    s.element.style.transform = `translate(${s.x}px, ${s.y}px)`;
                 }
-            }, 20);
+            });
+            requestAnimationFrame(mainLoop);
         }
 
-        // 4. 💥大爆発＆ファイナルクラッシュ
-        let explosionCount = 0;
-        function createExplosion(x, y) {
-            const exp = document.createElement('div');
-            exp.className = 'effect';
-            // 爆発と炎がランダムに出る
-            exp.innerText = Math.random() > 0.5 ? '💥' : '🔥';
-            exp.style.left = x - 40 + 'px';
-            exp.style.top = y - 40 + 'px';
-            document.body.appendChild(exp);
+        // --- 2. ボタンクリック：絶対カオス発動 ---
+        function goAbsoluteChaos() {
+            container.innerHTML = ''; // 最初のボタンを破壊
 
-            setTimeout(() => { exp.remove(); }, 500);
-
-            explosionCount++;
-            // 10匹全員が激突したら最終崩壊へ
-            if (explosionCount >= 10) {
-                finalCollapse();
+            // 👍ボタンを100個に超増殖
+            for (let i = 0; i < 100; i++) {
+                const b = document.createElement('button');
+                b.className = 'like-btn';
+                b.innerText = '👍 いいね！';
+                container.appendChild(b);
             }
+
+            // 既存の🦋を巨大化させ、速度をMAXにして他の化け物（🦊や👹）に変身させる
+            sprites.forEach(s => {
+                s.element.style.fontSize = '120px';
+                s.element.innerText = chaosEmojis[Math.floor(Math.random() * chaosEmojis.length)];
+                s.speedX *= 6;
+                s.speedY *= 6;
+            });
+
+            // レインボー点滅と画面超振動を開始
+            body.classList.add('rainbow-active');
+            body.classList.add('ultra-collapse');
+
+            // 偽エラーウィンドウの超高速大増殖タイマー
+            const windowTimer = setInterval(spawnFakeWindow, 40);
+            chaosTimers.push(windowTimer);
+
+            // 【超重要】7秒後に自動で全てをリセットして最初に戻すタイマー
+            const resetTimer = setTimeout(() => {
+                // 画面を真っ暗にするブラックアウト演出（0.5秒）
+                body.innerHTML = '';
+                body.style.backgroundColor = 'black';
+                body.className = '';
+                
+                setTimeout(() => {
+                    // ページ構成を復活させてリセット
+                    document.body.innerHTML = '<div id="btn-container" class="container"></div>';
+                    // スクリプトの再接続用にグローバル変数を再取得
+                    location.reload(); // 一番確実に全リセットするためにページを自動リロード
+                }, 500);
+
+            }, 7000); // 7秒間カオスが続きます
         }
 
-        // 5. 画面の完全崩壊演出
-        function finalCollapse() {
-            const body = document.getElementById('main-body');
-            const container = document.getElementById('btn-container');
-            const warnText = document.getElementById('warning-text');
+        // 3. 偽ポップアップウィンドウの生成
+        function spawnFakeWindow() {
+            const win = document.createElement('div');
+            win.className = 'fake-window';
+            win.style.left = Math.random() * (window.innerWidth - 300) + 'px';
+            win.style.top = Math.random() * (window.innerHeight - 150) + 'px';
 
-            body.style.backgroundColor = '#b30000'; // 画面が真っ赤に
-            body.classList.add('chaos-shake'); // 画面がガタガタ激しく揺れる
-            container.style.display = 'none'; // ボタン完全消滅
-            warnText.style.display = 'block'; // エラー警告表示
-
-            // カオスをさらに加速させるため、追加で虫を50匹ばら撒く
-            for (let i = 0; i < 50; i++) {
-                const s = document.createElement('div');
-                s.className = 'sprite';
-                s.innerText = '🦊';
-                s.style.left = Math.random() * window.innerWidth + 'px';
-                s.style.top = Math.random() * window.innerHeight + 'px';
-                body.appendChild(s);
-                sprites.push({
-                    element: s,
-                    x: Math.random() * window.innerWidth,
-                    y: Math.random() * window.innerHeight,
-                    speedX: (Math.random() - 0.5) * 40,
-                    speedY: (Math.random() - 0.5) * 40
-                });
-            }
+            win.innerHTML = `
+                <div class="window-header">
+                    <span>⚠️ FATAL ERROR</span>
+                    <span>×</span>
+                </div>
+                <div class="window-body">
+                    <p style="color:red; margin:0 0 10px 0;">LOOP DETECTED!</p>
+                    <p>永遠から逃れることはできない。</p>
+                    <button style="width:80px;">OK</button>
+                </div>
+            `;
+            document.body.appendChild(win);
         }
+
+        // 起動処理
+        initPeacefulWorld();
+        mainLoop();
     </script>
 </body>
 </html>
