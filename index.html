@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>安全なジョークプログラム V2</title>
+    <style>
+        body {
+            background-color: #111;
+            color: white;
+            overflow: hidden;
+            font-family: sans-serif;
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        /* 🦋のスタイル */
+        .butterfly {
+            position: absolute;
+            font-size: 40px;
+            user-select: none;
+            z-index: 1;
+        }
+        /* 🦊のスタイル */
+        .fox {
+            position: absolute;
+            font-size: 60px;
+            user-select: none;
+            display: none; /* 最初は非表示 */
+            z-index: 20;
+            transition: transform 0.1s linear;
+        }
+        /* 💥のスタイル */
+        .explosion {
+            position: absolute;
+            font-size: 120px;
+            user-select: none;
+            display: none; /* 最初は非表示 */
+            z-index: 30;
+            animation: pop 0.4s ease-out forwards;
+        }
+        @keyframes pop {
+            0% { transform: scale(0.5); opacity: 1; }
+            100% { transform: scale(2.5); opacity: 0; }
+        }
+        /* 👍ボタンのスタイル */
+        .like-btn {
+            padding: 15px 30px;
+            font-size: 24px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            margin: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 600px;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="btn-container" class="container">
+        <button class="like-btn" onclick="startEvent()">👍 いいね！</button>
+    </div>
+
+    <!-- 🦊と💥の要素を用意 -->
+    <div id="fox" class="fox">🦊</div>
+    <div id="explosion" class="explosion">💥</div>
+
+    <script>
+        // 1. 🦋を自動生成して飛ばす仕組み（前回と同じ）
+        const butterflyCount = 15;
+        const butterflies = [];
+
+        for (let i = 0; i < butterflyCount; i++) {
+            const b = document.createElement('div');
+            b.className = 'butterfly';
+            b.innerText = '🦋';
+            b.style.left = Math.random() * window.innerWidth + 'px';
+            b.style.top = Math.random() * window.innerHeight + 'px';
+            document.body.appendChild(b);
+            
+            butterflies.push({
+                element: b,
+                x: Math.random() * window.innerWidth,
+                y: Math.random() * window.innerHeight,
+                speedX: (Math.random() - 0.5) * 8,
+                speedY: (Math.random() - 0.5) * 8
+            });
+        }
+
+        function animate() {
+            butterflies.forEach(b => {
+                b.x += b.speedX;
+                b.y += b.speedY;
+                if (b.x < 0 || b.x > window.innerWidth - 40) b.speedX *= -1;
+                if (b.y < 0 || b.y > window.innerHeight - 40) b.speedY *= -1;
+                const wingFlap = Math.sin(Date.now() * 0.01) > 0 ? 'scaleX(1)' : 'scaleX(0.6)';
+                b.element.style.transform = `translate(${b.x}px, ${b.y}px) ${wingFlap}`;
+            });
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        // 2. イベント開始（ボタンクリック時）
+        let clicked = false;
+        function startEvent() {
+            if (clicked) return;
+            clicked = true;
+
+            const container = document.getElementById('btn-container');
+            container.innerHTML = ''; // 最初のボタンを消す
+
+            // 👍ボタンを5個に増殖
+            for (let i = 0; i < 5; i++) {
+                const newBtn = document.createElement('button');
+                newBtn.className = 'like-btn';
+                newBtn.innerText = '👍 いいね！';
+                container.appendChild(newBtn);
+            }
+
+            // 0.5秒後に🦊が飛んでくる
+            setTimeout(launchFox, 500);
+        }
+
+        // 3. 🦊が画面外から飛んでくる処理
+        function launchFox() {
+            const fox = document.getElementById('fox');
+            const container = document.getElementById('btn-container');
+            
+            // ターゲット（ボタンの集まりの中心座標）を取得
+            const rect = container.getBoundingClientRect();
+            const targetX = rect.left + rect.width / 2 - 30;
+            const targetY = rect.top + rect.height / 2 - 30;
+
+            // 🦊のスタート位置（画面の左上外側）
+            let foxX = -100;
+            let foxY = -100;
+            fox.style.display = 'block';
+
+            // 🦊をターゲットに向かって超高速移動させるアニメーション
+            const foxTimer = setInterval(() => {
+                // 目標座標に少しずつ近づける
+                foxX += (targetX - foxX) * 0.25;
+                foxY += (targetY - foxY) * 0.25;
+                fox.style.transform = `translate(${foxX}px, ${foxY}px) rotate(${Date.now() * 0.05}deg)`; // 回転しながら飛ぶ
+
+                // 十分に近づいたら激突（爆発）
+                if (Math.abs(targetX - foxX) < 10 && Math.abs(targetY - foxY) < 10) {
+                    clearInterval(foxTimer);
+                    fox.style.display = 'none'; // 🦊消滅
+                    triggerExplosion(targetX, targetY); // 💥発生
+                }
+            }, 20);
+        }
+
+        // 4. 💥爆発してボタンが消え去る処理
+        function triggerExplosion(x, y) {
+            const exp = document.getElementById('explosion');
+            const container = document.getElementById('btn-container');
+
+            // 爆発エフェクトの位置を設定して表示
+            exp.style.left = x - 30 + 'px';
+            exp.style.top = y - 30 + 'px';
+            exp.style.display = 'block';
+
+            // ボタンコンテナを非表示にして「吹き飛んだ」演出
+            container.style.opacity = '0';
+            container.style.transform = 'scale(0)';
+
+            // 1秒後にちょっとした終了メッセージ
+            setTimeout(() => {
+                exp.style.display = 'none';
+                alert('🦊「👍ボタンは私がすべて破壊した！」');
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
