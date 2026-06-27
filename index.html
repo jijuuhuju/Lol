@@ -2,187 +2,244 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>安全なジョークプログラム V2</title>
+    <title>⚠️ WARNING: SYSTEM CRASH ⚠️</title>
     <style>
         body {
             background-color: #111;
             color: white;
             overflow: hidden;
-            font-family: sans-serif;
+            font-family: 'Impact', sans-serif;
             height: 100vh;
             margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             flex-direction: column;
+            transition: background-color 0.5s ease;
         }
-        /* 🦋のスタイル */
-        .butterfly {
+        /* 虫・動物たちの共通スタイル */
+        .sprite {
             position: absolute;
-            font-size: 40px;
+            font-size: 50px;
             user-select: none;
-            z-index: 1;
+            z-index: 5;
         }
-        /* 🦊のスタイル */
-        .fox {
+        /* 💥と🔥のエフェクト */
+        .effect {
             position: absolute;
-            font-size: 60px;
+            font-size: 80px;
             user-select: none;
-            display: none; /* 最初は非表示 */
-            z-index: 20;
-            transition: transform 0.1s linear;
-        }
-        /* 💥のスタイル */
-        .explosion {
-            position: absolute;
-            font-size: 120px;
-            user-select: none;
-            display: none; /* 最初は非表示 */
             z-index: 30;
-            animation: pop 0.4s ease-out forwards;
+            animation: explode 0.5s ease-out forwards;
         }
-        @keyframes pop {
-            0% { transform: scale(0.5); opacity: 1; }
-            100% { transform: scale(2.5); opacity: 0; }
+        @keyframes explode {
+            0% { transform: scale(0.3); opacity: 1; }
+            100% { transform: scale(3); opacity: 0; }
         }
         /* 👍ボタンのスタイル */
         .like-btn {
-            padding: 15px 30px;
-            font-size: 24px;
+            padding: 12px 24px;
+            font-size: 20px;
             cursor: pointer;
             background-color: #007bff;
             color: white;
-            border: none;
+            border: 3px solid #fff;
             border-radius: 5px;
-            margin: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-            transition: all 0.3s ease;
+            margin: 5px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            font-weight: bold;
         }
         .container {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            max-width: 600px;
+            max-width: 80%;
             z-index: 10;
+            transition: all 0.3s;
+        }
+        /* 警告テロップ */
+        #warning-text {
+            position: absolute;
+            font-size: 80px;
+            color: yellow;
+            font-weight: bold;
+            display: none;
+            z-index: 50;
+            text-shadow: 5px 5px 0px red;
+            text-align: center;
+            width: 100%;
+        }
+        /* 画面激揺れのアニメーション */
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(0px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(2px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(2px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+        .chaos-shake {
+            animation: shake 0.15s infinite;
         }
     </style>
 </head>
-<body>
+<body id="main-body">
 
     <div id="btn-container" class="container">
-        <button class="like-btn" onclick="startEvent()">👍 いいね！</button>
+        <button class="like-btn" onclick="triggerChaos()">👍 いいね！</button>
     </div>
 
-    <!-- 🦊と💥の要素を用意 -->
-    <div id="fox" class="fox">🦊</div>
-    <div id="explosion" class="explosion">💥</div>
+    <div id="warning-text">⚠️ SYSTEM ERROR ⚠️<br>🦊🦊🦊🦊🦊</div>
 
     <script>
-        // 1. 🦋を自動生成して飛ばす仕組み（前回と同じ）
-        const butterflyCount = 15;
-        const butterflies = [];
-
-        for (let i = 0; i < butterflyCount; i++) {
-            const b = document.createElement('div');
-            b.className = 'butterfly';
-            b.innerText = '🦋';
-            b.style.left = Math.random() * window.innerWidth + 'px';
-            b.style.top = Math.random() * window.innerHeight + 'px';
-            document.body.appendChild(b);
-            
-            butterflies.push({
-                element: b,
-                x: Math.random() * window.innerWidth,
-                y: Math.random() * window.innerHeight,
-                speedX: (Math.random() - 0.5) * 8,
-                speedY: (Math.random() - 0.5) * 8
-            });
+        // 1. 最初から画面を荒らす虫たち（🦋と🦟）
+        const sprites = [];
+        const emojis = ['🦋', '🦟', '🪰'];
+        
+        function createInitialSprites() {
+            for (let i = 0; i < 30; i++) { // 30匹に増量
+                const s = document.createElement('div');
+                s.className = 'sprite';
+                s.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+                s.style.left = Math.random() * window.innerWidth + 'px';
+                s.style.top = Math.random() * window.innerHeight + 'px';
+                document.body.appendChild(s);
+                
+                sprites.push({
+                    element: s,
+                    x: Math.random() * window.innerWidth,
+                    y: Math.random() * window.innerHeight,
+                    speedX: (Math.random() - 0.5) * 15, // 移動速度アップ
+                    speedY: (Math.random() - 0.5) * 15
+                });
+            }
         }
 
-        function animate() {
-            butterflies.forEach(b => {
-                b.x += b.speedX;
-                b.y += b.speedY;
-                if (b.x < 0 || b.x > window.innerWidth - 40) b.speedX *= -1;
-                if (b.y < 0 || b.y > window.innerHeight - 40) b.speedY *= -1;
-                const wingFlap = Math.sin(Date.now() * 0.01) > 0 ? 'scaleX(1)' : 'scaleX(0.6)';
-                b.element.style.transform = `translate(${b.x}px, ${b.y}px) ${wingFlap}`;
+        function animateSprites() {
+            sprites.forEach(s => {
+                s.x += s.speedX;
+                s.y += s.speedY;
+                if (s.x < 0 || s.x > window.innerWidth - 50) s.speedX *= -1;
+                if (s.y < 0 || s.y > window.innerHeight - 50) s.speedY *= -1;
+                
+                // 激しい動きを演出
+                const flip = Math.sin(Date.now() * 0.05) > 0 ? 'scaleX(1)' : 'scaleX(-1)';
+                s.element.style.transform = `translate(${s.x}px, ${s.y}px) ${flip}`;
             });
-            requestAnimationFrame(animate);
+            requestAnimationFrame(animateSprites);
         }
-        animate();
+        createInitialSprites();
+        animateSprites();
 
-        // 2. イベント開始（ボタンクリック時）
-        let clicked = false;
-        function startEvent() {
-            if (clicked) return;
-            clicked = true;
+        // 2. カオス発動（ボタンクリック時）
+        let isActivated = false;
+        function triggerChaos() {
+            if (isActivated) return;
+            isActivated = true;
 
             const container = document.getElementById('btn-container');
-            container.innerHTML = ''; // 最初のボタンを消す
+            container.innerHTML = ''; // 最初のボタンを消去
 
-            // 👍ボタンを5個に増殖
-            for (let i = 0; i < 5; i++) {
+            // 👍ボタンを20個に超増殖！
+            for (let i = 0; i < 20; i++) {
                 const newBtn = document.createElement('button');
                 newBtn.className = 'like-btn';
                 newBtn.innerText = '👍 いいね！';
+                // カオス中にボタンを押すとさらに色が変わる
+                newBtn.onclick = () => { newBtn.style.backgroundColor = 'red'; };
                 container.appendChild(newBtn);
             }
 
-            // 0.5秒後に🦊が飛んでくる
-            setTimeout(launchFox, 500);
+            // キツネの連続波状攻撃スタート（計10匹が時間差で突撃）
+            for (let i = 0; i < 10; i++) {
+                setTimeout(spawnFox, i * 200);
+            }
         }
 
-        // 3. 🦊が画面外から飛んでくる処理
-        function launchFox() {
-            const fox = document.getElementById('fox');
+        // 3. 🦊キツネミサイルを射出
+        function spawnFox() {
+            const fox = document.createElement('div');
+            fox.className = 'sprite';
+            fox.innerText = '🦊';
+            fox.style.fontSize = '80px';
+            document.body.appendChild(fox);
+
             const container = document.getElementById('btn-container');
-            
-            // ターゲット（ボタンの集まりの中心座標）を取得
             const rect = container.getBoundingClientRect();
-            const targetX = rect.left + rect.width / 2 - 30;
-            const targetY = rect.top + rect.height / 2 - 30;
+            // 目標：ボタン群の中のランダムな位置
+            const targetX = rect.left + Math.random() * rect.width;
+            const targetY = rect.top + Math.random() * rect.height;
 
-            // 🦊のスタート位置（画面の左上外側）
-            let foxX = -100;
-            let foxY = -100;
-            fox.style.display = 'block';
+            // 画面外のランダムな位置からスタート
+            let foxX = Math.random() > 0.5 ? -100 : window.innerWidth + 100;
+            let foxY = Math.random() > 0.5 ? -100 : window.innerHeight + 100;
 
-            // 🦊をターゲットに向かって超高速移動させるアニメーション
-            const foxTimer = setInterval(() => {
-                // 目標座標に少しずつ近づける
-                foxX += (targetX - foxX) * 0.25;
-                foxY += (targetY - foxY) * 0.25;
-                fox.style.transform = `translate(${foxX}px, ${foxY}px) rotate(${Date.now() * 0.05}deg)`; // 回転しながら飛ぶ
+            const timer = setInterval(() => {
+                foxX += (targetX - foxX) * 0.2;
+                foxY += (targetY - foxY) * 0.2;
+                fox.style.transform = `translate(${foxX}px, ${foxY}px) rotate(${Date.now() * 0.1}deg)`;
 
-                // 十分に近づいたら激突（爆発）
-                if (Math.abs(targetX - foxX) < 10 && Math.abs(targetY - foxY) < 10) {
-                    clearInterval(foxTimer);
-                    fox.style.display = 'none'; // 🦊消滅
-                    triggerExplosion(targetX, targetY); // 💥発生
+                // 激突判定
+                if (Math.abs(targetX - foxX) < 20 && Math.abs(targetY - foxY) < 20) {
+                    clearInterval(timer);
+                    fox.remove(); // キツネ消滅
+                    createExplosion(targetX, targetY); // 💥発生
                 }
             }, 20);
         }
 
-        // 4. 💥爆発してボタンが消え去る処理
-        function triggerExplosion(x, y) {
-            const exp = document.getElementById('explosion');
+        // 4. 💥大爆発＆ファイナルクラッシュ
+        let explosionCount = 0;
+        function createExplosion(x, y) {
+            const exp = document.createElement('div');
+            exp.className = 'effect';
+            // 爆発と炎がランダムに出る
+            exp.innerText = Math.random() > 0.5 ? '💥' : '🔥';
+            exp.style.left = x - 40 + 'px';
+            exp.style.top = y - 40 + 'px';
+            document.body.appendChild(exp);
+
+            setTimeout(() => { exp.remove(); }, 500);
+
+            explosionCount++;
+            // 10匹全員が激突したら最終崩壊へ
+            if (explosionCount >= 10) {
+                finalCollapse();
+            }
+        }
+
+        // 5. 画面の完全崩壊演出
+        function finalCollapse() {
+            const body = document.getElementById('main-body');
             const container = document.getElementById('btn-container');
+            const warnText = document.getElementById('warning-text');
 
-            // 爆発エフェクトの位置を設定して表示
-            exp.style.left = x - 30 + 'px';
-            exp.style.top = y - 30 + 'px';
-            exp.style.display = 'block';
+            body.style.backgroundColor = '#b30000'; // 画面が真っ赤に
+            body.classList.add('chaos-shake'); // 画面がガタガタ激しく揺れる
+            container.style.display = 'none'; // ボタン完全消滅
+            warnText.style.display = 'block'; // エラー警告表示
 
-            // ボタンコンテナを非表示にして「吹き飛んだ」演出
-            container.style.opacity = '0';
-            container.style.transform = 'scale(0)';
-
-            // 1秒後にちょっとした終了メッセージ
-            setTimeout(() => {
-                exp.style.display = 'none';
-                alert('🦊「👍ボタンは私がすべて破壊した！」');
-            }, 1000);
+            // カオスをさらに加速させるため、追加で虫を50匹ばら撒く
+            for (let i = 0; i < 50; i++) {
+                const s = document.createElement('div');
+                s.className = 'sprite';
+                s.innerText = '🦊';
+                s.style.left = Math.random() * window.innerWidth + 'px';
+                s.style.top = Math.random() * window.innerHeight + 'px';
+                body.appendChild(s);
+                sprites.push({
+                    element: s,
+                    x: Math.random() * window.innerWidth,
+                    y: Math.random() * window.innerHeight,
+                    speedX: (Math.random() - 0.5) * 40,
+                    speedY: (Math.random() - 0.5) * 40
+                });
+            }
         }
     </script>
 </body>
